@@ -1,0 +1,5 @@
+Change max depth to 2.3 - 2.7
+// intervals WILL intersect every 2500 millis for psi meaning at 2500 millis the psi difference will be 0
+// changing millis to actuall time
+//void handleNoResponse() { nothing here IDKr
+Still has code to go to the bottom, im not sure if this will be utilized or not, should only hover at 2.5 thenn go up. no bottom of pool
