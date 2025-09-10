@@ -12,6 +12,9 @@ import digitalio
 import busio
 import adafruit_rfm9x
 
+#counts the number of complete data-sending cycles
+sendCycleCount = 0
+
 #rfm9x code, currently placeholder
 RADIO_FREQ_MHZ = 915.0
 CS = digitalio.DigitalInOut(board.CE1)
@@ -43,3 +46,4 @@ class MotorDirection(Enum):
 	CLOCKWISE = (auto)
 	COUNTERCLOCKWISE = (auto)
 	STALLED = (auto)
+
