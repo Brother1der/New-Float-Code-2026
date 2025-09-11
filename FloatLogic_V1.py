@@ -2,7 +2,7 @@
 '''
 	Authors: Graham Wunder, Elliot Fortner
 	init create: 9/10/2025
-	last updated: 9/10/2025
+	last updated: 9/11/2025
 '''
 
 #imports all necessary modules. very basic python
@@ -85,3 +85,4 @@ currentIndex = 0
 
 float_curr_state = FloatState.SURFACED
 motor_direction = MotorDirection.STALLED
+
