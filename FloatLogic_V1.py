@@ -16,7 +16,7 @@ import adafruit_rfm9x #documentation: https://docs.circuitpython.org/projects/rf
 #counts the number of complete data-sending cycles
 sendCycleCount = 0
 
-#company name. Idk why we have this but its in the legacy code but i transfered it
+#company name. Idk why we have this but its in the legacy code so i transfered it
 COMPANY_NAME = "Team #3"
 
 #this is the maximum size of the packets sent
@@ -85,4 +85,5 @@ currentIndex = 0
 
 float_curr_state = FloatState.SURFACED
 motor_direction = MotorDirection.STALLED
+
 
