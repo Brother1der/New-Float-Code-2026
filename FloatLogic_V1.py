@@ -109,4 +109,3 @@ def send_lora_message(message):
 	if len(message) > MAX_LIST_SIZE:
 		message = message[:MAX_LIST_SIZE]  # Truncate the message if it exceeds MAX_LIST_SIZE
 	rfm9x.send(bytes(message, "utf-8"))
-	blink_led(BLINK_DURATION) # Blink the LED to indicate a message was sent
