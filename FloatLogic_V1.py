@@ -1,12 +1,9 @@
-#tells people who the authors are! wow :O
-'''
-	Authors: Graham Wunder, Elliot Fortner
-	init create: 9/10/2025
-	last updated: 9/11/2025
-'''
+# Authors: Graham Wunder, Elliot Fortner, Tyrone Chen, and Danny Henningfield
+# Initially Created by Tyrone Chen and Danny Henningfield, translated to Python by Graham Wunder and Elliot Fortner
+# Init Create: 9/10/2025
+# Last Update: 9/11/2025
 
-#imports all necessary modules. very basic python
-import enum from Enum, auto #documentation: https://docs.python.org/3/library/enum.html
+from enum import Enum, auto #documentation: https://docs.python.org/3/library/enum.html
 import time
 import board
 import digitalio #documentation: https://docs.circuitpython.org/en/latest/shared-bindings/digitalio/
@@ -28,9 +25,9 @@ MIN_MAINTAIN_DEPTH = 2.4
 MAX_MAINTAIN_DEPTH = 2.6
 MIN_TOLERANCE = 2.0
 MAX_TOLERANCE = 3.0
-MAX_MAINTAINS = 10.0
+MAX_MAINTAINS = 10.0 #i have no clue what this does for the task, but its probably useful(?)
 
-#controls the radio freq. needs to be updated for actual rfm9x mhz
+#controls the radio freqency. needs to be updated for actual rfm9x mhz
 RADIO_FREQ_MHZ = 915.0
 
 # number of seconds between sending
@@ -39,6 +36,8 @@ SEND_INTERVAL = 1.5
 #interval before updating list
 LIST_UPDATER_INTERVAL = 5
 
+BLINK_DURATION = 0.5
+
 #stuff for the pi. tells program which pins things are on(?) will add to wiki later
 CS = digitalio.DigitalInOut(board.CE1)
 RESET = digitalio.DigitalInOut(board.D25)
@@ -46,6 +45,21 @@ spi = busio.SPI(board.SCK, MOSI=board.MOSI, MISO=board.MISO)
 rfm9x = adafruit_rfm9x.RFM9x(spi, CS, RESET, RADIO_FREQ_MHZ)
 LED = digitalio.DigitalInOut(board.D13)
 LED.direction = digitalio.Direction.OUTPUT
+
+#for switches? will look into later
+SWITCH_TOP_PIN = digitalio.DigitalInOut(board.D23) #placeholder pin, change later
+SWITCH_TOP_PIN.direction = digitalio.Direction.INPUT
+SWITCH_TOP_PIN.pull = digitalio.Pull.UP
+
+SWITCH_BOTTOM_PIN = digitalio.DigitalInOut(board.D24) #placeholder pin, change later
+SWITCH_BOTTOM_PIN.direction = digitalio.Direction.INPUT
+SWITCH_BOTTOM_PIN.pull = digitalio.Pull.UP
+
+#motor controls! HATS might change this or i might be the goat
+OUT_A = digitalio.DigitalInOut(board.D5) #placeholder pin, change later
+OUT_A.direction = digitalio.Direction.OUTPUT
+OUT_B = digitalio.DigitalInOut(board.D6) #placeholder pin, change later
+OUT_B.direction = digitalio.Direction.OUTPUT
 
 # the radio is configured in LoRa mode so you can't control sync
 # word, encryption, frequency deviation, or other settings
@@ -86,4 +100,13 @@ currentIndex = 0
 float_curr_state = FloatState.SURFACED
 motor_direction = MotorDirection.STALLED
 
+psi_half_check = False
+psi_full_sec = 0.0
+psi_half_sec = 0.0
+psi_change = 0.0
 
+def send_lora_message(message):
+	if len(message) > MAX_LIST_SIZE:
+		message = message[:MAX_LIST_SIZE]  # Truncate the message if it exceeds MAX_LIST_SIZE
+	rfm9x.send(bytes(message, "utf-8"))
+	blink_led(BLINK_DURATION) # Blink the LED to indicate a message was sent
