@@ -55,7 +55,7 @@ SWITCH_BOTTOM_PIN = digitalio.DigitalInOut(board.D24) #placeholder pin, change l
 SWITCH_BOTTOM_PIN.direction = digitalio.Direction.INPUT
 SWITCH_BOTTOM_PIN.pull = digitalio.Pull.UP
 
-#motor controls! HATS might change this or i might be the goat
+#motor pins
 OUT_A = digitalio.DigitalInOut(board.D5) #placeholder pin, change later
 OUT_A.direction = digitalio.Direction.OUTPUT
 OUT_B = digitalio.DigitalInOut(board.D6) #placeholder pin, change later
