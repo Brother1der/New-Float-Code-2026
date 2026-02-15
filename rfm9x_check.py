@@ -1,77 +1,85 @@
-# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
+# SPDX-FileCopyrightText: 2018 Brent Rubell for Adafruit Industries
+#
 # SPDX-License-Identifier: MIT
 
-# Simple demo of sending and recieving data with the RFM95 LoRa radio.
-# Author: Tony DiCola
-import board
-import busio
-import digitalio
+"""
+Wiring Check, Pi Radio w/RFM9x
 
+Learn Guide: https://learn.adafruit.com/lora-and-lorawan-for-raspberry-pi
+Author: Brent Rubell for Adafruit Industries
+"""
+import time
+import busio
+from digitalio import DigitalInOut, Direction, Pull
+import RPi.GPIO as GPIO
+# Import the SSD1306 module.
+import adafruit_ssd1306
+# Import the RFM9x radio module.
 import adafruit_rfm9x
 
-# Define radio parameters.
-RADIO_FREQ_MHZ = 915.0  # Frequency of the radio in Mhz. Must match your
-# module! Can be a value like 915.0, 433.0, etc.
+GPIO.setmode(GPIO.BCM)
 
-# Define pins connected to the chip, use these if wiring up the breakout according to the guide:
-CS = digitalio.DigitalInOut(board.CE1)
-RESET = digitalio.DigitalInOut(board.GPIO25)
-# Or uncomment and instead use these if using a Feather M0 RFM9x board and the appropriate
-# CircuitPython build:
-# CS = digitalio.DigitalInOut(board.RFM9X_CS)
-# RESET = digitalio.DigitalInOut(board.RFM9X_RST)
+# Button A (GPIO 5)
+btnA = DigitalInOut(5)
+btnA.direction = Direction.INPUT
+btnA.pull = Pull.UP
 
-# Define the onboard LED
-LED = digitalio.DigitalInOut(board.GPIO22)
-LED.direction = digitalio.Direction.OUTPUT
+# Button B (GPIO 6)
+btnB = DigitalInOut(6)
+btnB.direction = Direction.INPUT
+btnB.pull = Pull.UP
 
-# Initialize SPI bus.
-spi = busio.SPI(board.SCK, MOSI=board.MOSI, MISO=board.MISO)
+# Button C (GPIO 12)
+btnC = DigitalInOut(12)
+btnC.direction = Direction.INPUT
+btnC.pull = Pull.UP
 
-# Initialze RFM radio
-rfm9x = adafruit_rfm9x.RFM9x(spi, CS, RESET, RADIO_FREQ_MHZ)
+# Create the I2C interface.
+i2c = busio.I2C(3, 2)  # SCL=GPIO3, SDA=GPIO2
 
-# Note that the radio is configured in LoRa mode so you can't control sync
-# word, encryption, frequency deviation, or other settings!
+# 128x32 OLED Display
+reset_pin = DigitalInOut(4)
+display = adafruit_ssd1306.SSD1306_I2C(128, 32, i2c, reset=reset_pin)
+# Clear the display.
+display.fill(0)
+display.show()
+width = display.width
+height = display.height
 
-# You can however adjust the transmit power (in dB).  The default is 13 dB but
-# high power radios like the RFM95 can go up to 23 dB:
-rfm9x.tx_power = 23
-
-# Send a packet.  Note you can only send a packet up to 252 bytes in length.
-# This is a limitation of the radio packet size, so if you need to send larger
-# amounts of data you will need to break it into smaller send calls.  Each send
-# call will wait for the previous one to finish before continuing.
-rfm9x.send(bytes("Hello world!\r\n", "utf-8"))
-print("Sent Hello World message!")
-
-# Wait to receive packets.  Note that this library can't receive data at a fast
-# rate, in fact it can only receive and process one 252 byte packet at a time.
-# This means you should only use this for low bandwidth scenarios, like sending
-# and receiving a single message at a time.
-print("Waiting for packets...")
+# Configure RFM9x LoRa Radio
+CS = DigitalInOut(8)      # GPIO 8 (CE0)
+RESET = DigitalInOut(25)  # GPIO 25
+spi = busio.SPI(11, MOSI=10, MISO=9)  # CLK=11, MOSI=10, MISO=9
 
 while True:
-    packet = rfm9x.receive()
-    # Optionally change the receive timeout from its default of 0.5 seconds:
-    # packet = rfm9x.receive(timeout=5.0)
-    # If no packet was received during the timeout then None is returned.
-    if packet is None:
-        # Packet has not been received
-        LED.value = False
-        print("Received nothing! Listening again...")
-    else:
-        # Received a packet!
-        LED.value = True
-        # Print out the raw bytes of the packet:
-        print(f"Received (raw bytes): {packet}")
-        # And decode to ASCII text and print it too.  Note that you always
-        # receive raw bytes and need to convert to a text format like ASCII
-        # if you intend to do string processing on your data.  Make sure the
-        # sending side is sending ASCII data before you try to decode!
-        packet_text = str(packet, "ascii")
-        print(f"Received (ASCII): {packet_text}")
-        # Also read the RSSI (signal strength) of the last received message and
-        # print it.
-        rssi = rfm9x.last_rssi
-        print(f"Received signal strength: {rssi} dB")
+    # Clear the image
+    display.fill(0)
+
+    # Attempt to set up the RFM9x Module
+    try:
+        rfm9x = adafruit_rfm9x.RFM9x(spi, CS, RESET, 915.0)
+        display.text('RFM9x: Detected', 0, 0, 1)
+    except RuntimeError as error:
+        # Thrown on version mismatch
+        display.text('RFM9x: ERROR', 0, 0, 1)
+        print('RFM9x Error: ', error)
+
+    # Check buttons
+    if not btnA.value:
+        # Button A Pressed
+        display.text('Ada', width-85, height-7, 1)
+        display.show()
+        time.sleep(0.1)
+    if not btnB.value:
+        # Button B Pressed
+        display.text('Fruit', width-75, height-7, 1)
+        display.show()
+        time.sleep(0.1)
+    if not btnC.value:
+        # Button C Pressed
+        display.text('Radio', width-65, height-7, 1)
+        display.show()
+        time.sleep(0.1)
+
+    display.show()
+    time.sleep(0.1)
