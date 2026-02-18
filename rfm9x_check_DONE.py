@@ -9,6 +9,7 @@ Learn Guide: https://learn.adafruit.com/lora-and-lorawan-for-raspberry-pi
 Author: Brent Rubell for Adafruit Industries
 """
 import time
+import board
 import busio
 from digitalio import DigitalInOut, Direction, Pull
 import RPi.GPIO as GPIO
@@ -35,7 +36,7 @@ btnC.direction = Direction.INPUT
 btnC.pull = Pull.UP
 
 # Create the I2C interface.
-i2c = busio.I2C(3, 2)  # SCL=GPIO3, SDA=GPIO2
+i2c = board.I2C()  # SCL=GPIO3, SDA=GPIO2
 
 # 128x32 OLED Display
 reset_pin = DigitalInOut(board.D4)
@@ -48,9 +49,8 @@ height = display.height
 
 # Configure RFM9x LoRa Radio
 CS = DigitalInOut(board.CE0)
-RESET = DigitalInOut(board.25)
+RESET = DigitalInOut(board.D25)
 spi = board.SPI()
-i2c = board.I2C()
 
 while True:
     # Clear the image
